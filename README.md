@@ -1,4 +1,4 @@
-# OpenCode SDO Writer
+# SDO Writer
 
 > An OpenCode agent, three writer profiles and twenty-one skills for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)
 
@@ -40,7 +40,7 @@ The package lives in this repository, so it is installed straight from git:
 uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
-The command is long, so alias it once:
+The package is not on PyPI yet, so `uvx` needs the repository as its source. Alias that once:
 
 ```bash
 alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer'

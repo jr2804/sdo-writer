@@ -1,4 +1,4 @@
-# OpenCode SDO Writer
+# SDO Writer
 
 OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)
 

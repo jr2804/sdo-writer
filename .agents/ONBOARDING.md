@@ -5,7 +5,7 @@ project structure or tooling changes significantly.
 
 ## Project
 
-OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T) Full docs at `README.md` or `docs/`.
+OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T). The skills are also served over MCP by the sibling repository `sdo-skills-mcp`. Full docs at `README.md` or `docs/`.
 
 ## Quick start
 

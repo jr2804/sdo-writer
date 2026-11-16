@@ -4,7 +4,7 @@ hide:
 - feedback
 ---
 
-## OpenCode SDO Writer
+## SDO Writer
 
 > An OpenCode agent, three writer profiles and twenty-one skills for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)
 
@@ -16,7 +16,7 @@ The package installs one agent, three writer profiles and the skills that carry 
 uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
-The examples in this documentation use the short alias `sdo-writer` for that command.
+The examples in this documentation write that command as `sdo-writer`.
 
 ### The pieces
 

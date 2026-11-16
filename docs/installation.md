@@ -15,7 +15,7 @@ uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile 
 
 `uvx` downloads the package, runs the `init` command and throws the temporary environment away. The installed skills and the agent stay behind.
 
-The command is long, so most people alias it once:
+The package is not on PyPI yet, so `uvx` needs the repository as its source. Most people alias that once:
 
 ```bash
 alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer'

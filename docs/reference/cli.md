@@ -9,7 +9,7 @@ sdo-writer [OPTIONS] COMMAND [ARGS]...
 ```
 
 The package installs one command, `sdo-writer`. The examples below write it as
-`sdo-writer ...`, which is the short alias for
+`sdo-writer ...`; without a local install that is
 `uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer ...`.
 
 ### `init`

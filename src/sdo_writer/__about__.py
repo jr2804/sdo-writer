@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import opencode_sdo_writer
+import sdo_writer
 
-__title__ = "opencode_sdo_writer"
+__title__ = "sdo_writer"
 __description__ = "OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)"
-__version__ = opencode_sdo_writer.__version__
+__version__ = sdo_writer.__version__
 __author__ = "Jan.Reimes"
 __email__ = "jan.reimes@head-acoustics.com"
 __license__ = "MIT"

@@ -10,8 +10,8 @@ Contributions are welcome! Here's how you can help.
 
 ```bash
 # Clone the repository
-git clone https://github.com/jr2804/opencode-sdo-writer.git
-cd opencode-sdo-writer
+git clone https://github.com/jr2804/sdo-writer.git
+cd sdo-writer
 
 # Install the pinned tool versions (node, bun, ruff, ty, rumdl, pyreorder, ...)
 # then sync the dev dependencies declared in pyproject.toml.
@@ -48,7 +48,7 @@ mise docs          # build the Zensical documentation
 Imports live at the top of every module, in the tests as well. `ruff` rejects
 inline imports (`PLC0415`) and `mise sort` fails when the module order is
 wrong, so `pyreorder` is the single source of truth for the layout of a file.
-The vendored snapshot under `src/opencode_sdo_writer/_vendor/` is excluded from
+The vendored snapshot under `src/sdo_writer/_vendor/` is excluded from
 all of these checks: it must stay byte-identical to its source.
 
 ### Pull Requests

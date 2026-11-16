@@ -13,7 +13,7 @@ from pathlib import Path
 
 from .profile import Profile
 
-TEMPLATE_PACKAGE = "opencode_sdo_writer.templates"
+TEMPLATE_PACKAGE = "sdo_writer.templates"
 FRONTMATTER_TEMPLATE = "sdo-writer.md"
 BODY_TEMPLATE = "sdo-writer-body.md"
 

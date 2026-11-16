@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from opencode_sdo_writer.installer import install, status, uninstall, wanted_skills
-from opencode_sdo_writer.lockfile import LockFile, SkillEntry, Source
-from opencode_sdo_writer.profile import load_profile
-from opencode_sdo_writer.sources import SkillSource
+from sdo_writer.installer import install, status, uninstall, wanted_skills
+from sdo_writer.lockfile import LockFile, SkillEntry, Source
+from sdo_writer.profile import load_profile
+from sdo_writer.sources import SkillSource
 
 
 def test_wanted_skills_follows_layers_and_extras(lock) -> None:

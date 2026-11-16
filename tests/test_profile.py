@@ -6,8 +6,8 @@ import dataclasses
 
 import pytest
 
-import opencode_sdo_writer.profile as module
-from opencode_sdo_writer.profile import ProfileError, available_profiles, load_profile
+import sdo_writer.profile as module
+from sdo_writer.profile import ProfileError, available_profiles, load_profile
 
 
 def test_bundled_profiles() -> None:

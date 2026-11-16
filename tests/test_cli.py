@@ -6,8 +6,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from opencode_sdo_writer.cli.app import app
-from opencode_sdo_writer.lockfile import load_lock
+from sdo_writer.cli.app import app
+from sdo_writer.lockfile import load_lock
 
 runner = CliRunner()
 

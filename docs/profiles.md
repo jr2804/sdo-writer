@@ -6,7 +6,7 @@ title: Profiles
 
 A profile decides three things: which skills are installed, what the agent is called and how it behaves, and which tools it may run.
 
-Profiles are TOML files in `src/opencode_sdo_writer/profiles/`. They are part of the package, so they ship with it.
+Profiles are TOML files in `src/sdo_writer/profiles/`. They are part of the package, so they ship with it.
 
 ### The three profiles
 
@@ -105,7 +105,7 @@ non-zero status.
 
 ### Agent file
 
-The agent is rendered from the template in `src/opencode_sdo_writer/templates/`:
+The agent is rendered from the template in `src/sdo_writer/templates/`:
 
 - `sdo-writer.md` - the frontmatter, the permissions derived from `[tools]`, and the body.
 - `sdo-writer-body.md` - the shared behaviour, the same for every profile.

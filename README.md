@@ -5,8 +5,8 @@
 <p align="center">
   <a href="#"><img alt="Python 3.13+" src="https://img.shields.io/badge/python-3.13%2B-3776ab?logo=python"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-MIT-green.svg"></a>
-  <a href="https://github.com/jr2804/opencode-sdo-writer/actions">
-    <img alt="CI" src="https://github.com/jr2804/opencode-sdo-writer/actions/workflows/ci.yml/badge.svg">
+  <a href="https://github.com/jr2804/sdo-writer/actions">
+    <img alt="CI" src="https://github.com/jr2804/sdo-writer/actions/workflows/ci.yml/badge.svg">
   </a>
 </p>
 
@@ -37,13 +37,13 @@ mise x github:iOfficeAI/OfficeCLI -- officecli get file.docx
 The package lives in this repository, so it is installed straight from git:
 
 ```bash
-uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer init --profile etsi
+uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
 The command is long, so alias it once:
 
 ```bash
-alias sdo-writer='uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer'
+alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer'
 sdo-writer init --profile etsi
 ```
 
@@ -100,7 +100,7 @@ the Directives or a numbering rule, it loads the skill that holds the rule.
 
 ## Working with the sources
 
-The skill text is not edited here. It comes from the skills repository, pinned in `src/opencode_sdo_writer/vendor.lock`:
+The skill text is not edited here. It comes from the skills repository, pinned in `src/sdo_writer/vendor.lock`:
 
 ```bash
 uv run python scripts/vendor_skills.py \
@@ -134,7 +134,7 @@ that `update` and `uninstall` know what belongs to it. The behaviour is covered 
 | ----- | ---- | ------- |
 | Package manager | [uv](https://docs.astral.sh/uv/) | Fast installs, deterministic lockfile |
 | Task runner | [mise](https://mise.jdx.dev/) | DAG-based tasks, tool version management, on-demand tools |
-| CLI | [Typer](https://typer.tiangolo.com/) | `opencode-sdo-writer init`, `status`, `update`, `uninstall` |
+| CLI | [Typer](https://typer.tiangolo.com/) | `sdo-writer init`, `status`, `update`, `uninstall` |
 | Linter + formatter | [ruff](https://docs.astral.sh/ruff/) | Single-binary code quality |
 | Structural sorter | [pyreorder](https://pypi.org/project/pyreorder/) | Module order and hoisted imports |
 | Type checker | [ty](https://github.com/google/ty) | Strict type checking |

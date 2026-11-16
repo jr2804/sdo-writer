@@ -46,7 +46,7 @@ summary: the agent matches the request against it to decide whether to load the 
 
 ### The lock file
 
-`src/opencode_sdo_writer/vendor.lock` records what is vendored:
+`src/sdo_writer/vendor.lock` records what is vendored:
 
 ```toml
 version = 1
@@ -79,7 +79,7 @@ uv run python scripts/vendor_skills.py \
 ```
 
 The script copies the skill directories into
-`src/opencode_sdo_writer/_vendor/<source-id>/<skill-id>/` and rewrites the lock file. It never
+`src/sdo_writer/_vendor/<source-id>/<skill-id>/` and rewrites the lock file. It never
 touches the network: whoever prepares a release decides what goes into the package.
 
 Options:
@@ -90,8 +90,8 @@ Options:
 | `--ref` | Revision to record in the lock file (required) |
 | `--repo` | Repository URL to record for the main source |
 | `--extra-source ID=PATH` | Additional source of skills, for example a tool repository |
-| `--output` | Lock file to write (default `src/opencode_sdo_writer/vendor.lock`) |
-| `--vendor-dir` | Directory for the snapshot (default `src/opencode_sdo_writer/_vendor`) |
+| `--output` | Lock file to write (default `src/sdo_writer/vendor.lock`) |
+| `--vendor-dir` | Directory for the snapshot (default `src/sdo_writer/_vendor`) |
 
 ### Adding a skill
 

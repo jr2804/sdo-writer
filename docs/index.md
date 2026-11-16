@@ -13,7 +13,7 @@ The package installs one agent, three writer profiles and the skills that carry 
 ### In one line
 
 ```bash
-uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer init --profile etsi
+uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
 The examples in this documentation use the short alias `sdo-writer` for that command.

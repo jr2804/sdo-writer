@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
 
-VENDOR_PACKAGE = "opencode_sdo_writer"
+VENDOR_PACKAGE = "sdo_writer"
 VENDOR_DIR = "_vendor"
 
 #: Files that never contribute to a skill hash.

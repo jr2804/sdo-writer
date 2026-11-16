@@ -1,5 +1,5 @@
 [project]
-name = "opencode-sdo-writer"
+name = "sdo-writer"
 dynamic = ["version"]
 description = "OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)"
 readme = "README.md"
@@ -21,10 +21,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jr2804/opencode-sdo-writer"
-Documentation = "https://github.com/jr2804/opencode-sdo-writer"
-Repository = "https://github.com/jr2804/opencode-sdo-writer"
-Issues = "https://github.com/jr2804/opencode-sdo-writer/issues"
+Homepage = "https://github.com/jr2804/sdo-writer"
+Documentation = "https://github.com/jr2804/sdo-writer"
+Repository = "https://github.com/jr2804/sdo-writer"
+Issues = "https://github.com/jr2804/sdo-writer/issues"
 Skills = "https://github.com/jr2804/sdo-skills"
 
 [dependency-groups]
@@ -40,15 +40,15 @@ dev = [
 ]
 
 [project.scripts]
-opencode-sdo-writer = "opencode_sdo_writer.cli.app:main"
+sdo-writer = "sdo_writer.cli.app:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/opencode_sdo_writer"]
+packages = ["src/sdo_writer"]
 artifacts = [
-    "src/opencode_sdo_writer/profiles/*.toml",
-    "src/opencode_sdo_writer/templates/*.md",
-    "src/opencode_sdo_writer/vendor.lock",
-    "src/opencode_sdo_writer/_vendor/**",
+    "src/sdo_writer/profiles/*.toml",
+    "src/sdo_writer/templates/*.md",
+    "src/sdo_writer/vendor.lock",
+    "src/sdo_writer/_vendor/**",
 ]
 
 [build-system]
@@ -65,10 +65,10 @@ fallback-version = "0.0.0"
 testpaths = ["tests"]
 pythonpath = ["src", "tests"]
 cache_dir = "tests/test-cache"
-addopts = "-v --tb=short --cov=opencode_sdo_writer --cov-report=term-missing --cov-report=html --cov-report=xml --cov-fail-under=100"
+addopts = "-v --tb=short --cov=sdo_writer --cov-report=term-missing --cov-report=html --cov-report=xml --cov-fail-under=100"
 
 [tool.pytest-cov]
-addopts = "--cov=opencode_sdo_writer --cov-report=term-missing --cov-report=html --cov-report=xml --cov-fail-under=100"
+addopts = "--cov=sdo_writer --cov-report=term-missing --cov-report=html --cov-report=xml --cov-fail-under=100"
 fail_under = 100
 
 [tool.codespell]

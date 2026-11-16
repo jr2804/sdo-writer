@@ -29,9 +29,9 @@ mise all        # test + lint + format in one pass
 
 ## Layout
 
-- **`src/opencode_sdo_writer/`** — primary package source (src layout)
+- **`src/sdo_writer/`** — primary package source (src layout)
 - **`tests/`** — pytest suite (100% coverage gate)
-- **`src/opencode_sdo_writer/cli/`** — Typer CLI
+- **`src/sdo_writer/cli/`** — Typer CLI
 - **`docs/`** — Zensical / MkDocs Material documentation
 - **`.config/mise/`** — task runner config (`config.toml` + `conf.d/` fragments)
 

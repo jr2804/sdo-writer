@@ -7,11 +7,11 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from opencode_sdo_writer.cli import app as app_module, commands as commands_module
-from opencode_sdo_writer.cli.app import app
-from opencode_sdo_writer.lockfile import LockError, load_lock
-from opencode_sdo_writer.profile import ProfileError
-from opencode_sdo_writer.sources import load_checkout
+from sdo_writer.cli import app as app_module, commands as commands_module
+from sdo_writer.cli.app import app
+from sdo_writer.lockfile import LockError, load_lock
+from sdo_writer.profile import ProfileError
+from sdo_writer.sources import load_checkout
 
 runner = CliRunner()
 
@@ -102,6 +102,6 @@ def test_version_falls_back_when_the_package_is_not_installed(monkeypatch) -> No
 
 
 def test_main_entry_point(monkeypatch) -> None:
-    monkeypatch.setattr("sys.argv", ["opencode-sdo-writer", "--version"])
+    monkeypatch.setattr("sys.argv", ["sdo-writer", "--version"])
     with pytest.raises(SystemExit):
         app_module.main()

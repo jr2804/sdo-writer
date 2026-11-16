@@ -46,7 +46,7 @@ def test_pyproject_toml_structure() -> None:
 
     # Verify project name matches project slug (kebab-case)
     project_name = content["project"]["name"]
-    expected_name = "opencode-sdo-writer"
+    expected_name = "sdo-writer"
     if project_name != expected_name:
         msg = f"Project name should be '{expected_name}', got: {project_name}"
         raise AssertionError(msg)
@@ -74,7 +74,7 @@ def test_pytest_configuration() -> None:
     # Verify coverage source matches package slug (snake_case)
     if "addopts" in pytest_cov:
         addopts = pytest_cov["addopts"]
-        expected_slug = "opencode_sdo_writer"
+        expected_slug = "sdo_writer"
         if expected_slug not in addopts:
             msg = f"Coverage should be configured for '{expected_slug}', got: {addopts}"
             raise AssertionError(msg)

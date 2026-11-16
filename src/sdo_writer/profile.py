@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from importlib.resources import files
 from typing import Any
 
-PROFILE_PACKAGE = "opencode_sdo_writer.profiles"
+PROFILE_PACKAGE = "sdo_writer.profiles"
 
 AGENT_NAME = "sdo-writer"
 

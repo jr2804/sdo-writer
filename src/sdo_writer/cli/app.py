@@ -6,10 +6,10 @@ from importlib.metadata import version
 
 import typer
 
-from opencode_sdo_writer.cli import commands
+from sdo_writer.cli import commands
 
 app = typer.Typer(
-    name="opencode_sdo_writer",
+    name="sdo_writer",
     help="OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)",
     add_completion=True,
     no_args_is_help=True,
@@ -46,7 +46,7 @@ def _callback(
 def _get_version() -> str:
     """Get application version from package metadata."""
     try:
-        return version("opencode_sdo_writer")
+        return version("sdo_writer")
     except Exception:
         return "0.0.0"  # Fallback for development mode
 

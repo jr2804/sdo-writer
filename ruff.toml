@@ -1,6 +1,6 @@
 
 unsafe-fixes = true
-exclude = [".venv", ".tmp", "build", "dist", "__pypackages__", "src/opencode_sdo_writer/_vendor"]
+exclude = [".venv", ".tmp", "build", "dist", "__pypackages__", "src/sdo_writer/_vendor"]
 target-version = "py313"
 line-length = 160
 
@@ -84,6 +84,6 @@ docstring-code-format = true
 docstring-code-line-length = 160
 
 [lint.isort]
-known-first-party = ["opencode_sdo_writer"]
+known-first-party = ["sdo_writer"]
 # Keep "import x as y" on the same line as the rest of its import block.
 combine-as-imports = true

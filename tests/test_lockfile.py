@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from opencode_sdo_writer.lockfile import LockError, load_lock
+from sdo_writer.lockfile import LockError, load_lock
 
 
 def test_packaged_lock_has_sources_and_skills() -> None:

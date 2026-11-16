@@ -5,12 +5,12 @@ title: CLI reference
 ## CLI reference
 
 ```text
-opencode-sdo-writer [OPTIONS] COMMAND [ARGS]...
+sdo-writer [OPTIONS] COMMAND [ARGS]...
 ```
 
-The package installs one command, `opencode-sdo-writer`. The examples below write it as
+The package installs one command, `sdo-writer`. The examples below write it as
 `sdo-writer ...`, which is the short alias for
-`uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer ...`.
+`uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer ...`.
 
 ### `init`
 

@@ -96,7 +96,7 @@ _Always-injected_ - keep minimal. Everything else → `.agents/` files.
 1. **The skill text is not edited here.** Rule content lives in
    [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills). This repository
    vendors a snapshot of it and pins the revision in
-   `src/opencode_sdo_writer/vendor.lock`. Change a skill in the skills
+   `src/sdo_writer/vendor.lock`. Change a skill in the skills
    repository, re-vendor, never in `_vendor/`.
 2. **The installer only touches what it wrote.** A skill directory that the
    manifest does not list is never modified or removed; the install reports a
@@ -110,9 +110,11 @@ _Always-injected_ - keep minimal. Everything else → `.agents/` files.
    V1 `permissions:` array. Keep the rendered frontmatter valid V2.
 6. **The test suite is the contract.** The package keeps a 100% coverage gate
    (`--cov-fail-under=100`). New behaviour comes with a test.
-7. **One command name.** The CLI is `opencode-sdo-writer`; the agent file is
-   `sdo-writer.md`. The two names are different on purpose: one is the
-   installer, the other is the thing OpenCode runs.
+7. **One product, one name.** The repository, the CLI command and the agent
+   are all `sdo-writer`; the installer writes `agents/sdo-writer.md` and the
+   console script is `sdo-writer`. Never reintroduce a host prefix such as
+   `opencode-`: the agent and its skills are meant to outlive the host they
+   run in today.
 8. **No inline imports.** Every import sits at the top of its module, in the
    test suite as well. `ruff` enforces it (`PLC0415`) and `pyreorder` hoists
    stragglers. The module order itself is a gate too: `mise run sort` fails
@@ -124,10 +126,10 @@ Start lean. Add child AGENTS.md entries incrementally when boundaries become dur
 
 Top-level boundaries in this project:
 
-- `src/opencode_sdo_writer/` (primary package code)
-  - `src/opencode_sdo_writer/profiles/` - the writer profiles, one TOML file each
-  - `src/opencode_sdo_writer/templates/` - the agent templates
-  - `src/opencode_sdo_writer/_vendor/` - the vendored skill snapshot (generated)
+- `src/sdo_writer/` (primary package code)
+  - `src/sdo_writer/profiles/` - the writer profiles, one TOML file each
+  - `src/sdo_writer/templates/` - the agent templates
+  - `src/sdo_writer/_vendor/` - the vendored skill snapshot (generated)
 - `tests/` (test suite)
 - `docs/` (documentation)
 - `scripts/` (vendoring and credits helpers)

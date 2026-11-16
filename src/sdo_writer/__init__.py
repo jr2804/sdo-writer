@@ -1,4 +1,4 @@
-"""opencode_sdo_writer package."""
+"""sdo_writer package."""
 
 from __future__ import annotations
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from opencode_sdo_writer.paths import (
+from sdo_writer.paths import (
     GLOBAL_CONFIG_ENV,
     agents_dir,
     global_config_dir,

@@ -2,4 +2,4 @@
 title: API Reference
 ---
 
-::: opencode_sdo_writer
+::: sdo_writer

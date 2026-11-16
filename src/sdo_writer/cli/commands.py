@@ -6,12 +6,12 @@ from pathlib import Path
 
 import typer
 
-from opencode_sdo_writer import installer
-from opencode_sdo_writer.cli import args
-from opencode_sdo_writer.lockfile import LockError, load_lock
-from opencode_sdo_writer.paths import global_config_dir, project_config_dir
-from opencode_sdo_writer.profile import ProfileError, available_profiles, load_profile
-from opencode_sdo_writer.sources import SkillSource, resolve_source
+from sdo_writer import installer
+from sdo_writer.cli import args
+from sdo_writer.lockfile import LockError, load_lock
+from sdo_writer.paths import global_config_dir, project_config_dir
+from sdo_writer.profile import ProfileError, available_profiles, load_profile
+from sdo_writer.sources import SkillSource, resolve_source
 
 
 def update(

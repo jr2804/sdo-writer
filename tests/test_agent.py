@@ -7,8 +7,8 @@ import re
 
 import yaml
 
-from opencode_sdo_writer.agent import render_agent
-from opencode_sdo_writer.profile import available_profiles, load_profile
+from sdo_writer.agent import render_agent
+from sdo_writer.profile import available_profiles, load_profile
 
 #: A backticked token that looks like a skill identifier.
 SKILL_ID = re.compile(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`")

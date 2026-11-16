@@ -11,7 +11,7 @@ OpenCode coding agent project. Tooling surface:
 | `ty` | Type checking (lint). |
 | `rumdl` | Markdown lint: `mise run format-md`. |
 | `zensical` | Docs site build. |
-| `copier`-adjacent none — see `scripts/vendor_skills.py`. |
+| `copier`-adjacent none — see `scripts/vendor_skills.py`. |  |
 | `git` | History. |
 
 MCP servers: none configured for this repo. OpenCode agent/skills run in user's environment.

@@ -29,8 +29,8 @@ disable = ["MD033"]
 # The vendored skill snapshot is a verbatim copy: reformatting it would break
 # the vendoring contract. The agent templates are prompt bodies, not documents.
 exclude = [
-    "src/opencode_sdo_writer/_vendor",
-    "src/opencode_sdo_writer/templates",
+    "src/sdo_writer/_vendor",
+    "src/sdo_writer/templates",
 ]
 
 # Respect .gitignore files when scanning directories (default: true)

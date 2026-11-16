@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from opencode_sdo_writer.manifest import Manifest, load_manifest, save_manifest
+from sdo_writer.manifest import Manifest, load_manifest, save_manifest
 
 
 def test_round_trip(tmp_path) -> None:

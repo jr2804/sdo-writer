@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from opencode_sdo_writer.sources import (
+from sdo_writer.sources import (
     hash_skill,
     load_checkout,
     load_vendored,

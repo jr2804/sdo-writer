@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
 
-LOCK_PACKAGE = "opencode_sdo_writer"
+LOCK_PACKAGE = "sdo_writer"
 LOCK_FILE = "vendor.lock"
 
 

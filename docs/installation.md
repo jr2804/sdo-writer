@@ -10,7 +10,7 @@ every external tool the skills use is pulled on demand through `mise`.
 ### One line
 
 ```bash
-uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer init --profile etsi
+uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
 `uvx` downloads the package, runs the `init` command and throws the temporary environment away. The installed skills and the agent stay behind.
@@ -18,7 +18,7 @@ uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writ
 The command is long, so most people alias it once:
 
 ```bash
-alias sdo-writer='uvx --from "git+https://github.com/jr2804/opencode-sdo-writer" opencode-sdo-writer'
+alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer'
 ```
 
 The examples below use that alias.

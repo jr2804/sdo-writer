@@ -48,8 +48,9 @@ mise docs          # build the Zensical documentation
 Imports live at the top of every module, in the tests as well. `ruff` rejects
 inline imports (`PLC0415`) and `mise sort` fails when the module order is
 wrong, so `pyreorder` is the single source of truth for the layout of a file.
-The vendored snapshot under `src/sdo_writer/_vendor/` is excluded from
-all of these checks: it must stay byte-identical to its source.
+The skill text is not in this repository: it is served by `sdo-skills-mcp`, so
+there is no snapshot to exclude from the checks and none to keep
+byte-identical.
 
 ### Pull Requests
 

@@ -1,6 +1,6 @@
 # SDO Writer
 
-> An OpenCode agent, three writer profiles and twenty-one skills for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)
+> An OpenCode agent and three writer profiles for standards contributions and deliverables (ETSI, 3GPP, ITU-T), with the skills served over MCP
 
 <p align="center">
   <a href="#"><img alt="Python 3.13+" src="https://img.shields.io/badge/python-3.13%2B-3776ab?logo=python"></a>
@@ -21,10 +21,12 @@ breaking its styles).
 This package installs both into OpenCode:
 
 - **`sdo-writer`**, an OpenCode agent that knows the difference between a contribution and a deliverable, and that refuses to invent a rule it has not read.
-- **Three profiles** — `etsi`, `3gpp`, `itut` — that decide which skills are in scope.
-- **Twenty-one skills** that carry the rules, the document skeletons, the checklists and the tooling
-  notes. The skill text lives in [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills); this
-  repository vendors a pinned snapshot of it.
+- **Three profiles** — `etsi`, `3gpp`, `itut` — that select the agent's wording and the skills in scope.
+- **A connection to the skills server** [`sdo-skills-mcp`](https://github.com/jr2804/sdo-skills-mcp),
+  which serves the twenty-one skills that carry the rules, the document skeletons, the checklists
+  and the tooling notes. The skill text lives in
+  [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills). Nothing is copied into your
+  configuration: a rules fix reaches you without a new install of this package.
 
 Nothing has to be installed. Every external tool is pulled on demand through [mise](https://mise.jdx.dev/):
 
@@ -47,9 +49,10 @@ alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writ
 sdo-writer init --profile etsi
 ```
 
-That writes the agent and the skills into your global OpenCode configuration (`~/.config/opencode/`),
-so they are available in every project. Use `--project .` to install into a single repository
-instead.
+That writes the agent and one `mcp.servers.sdo-skills` entry into your global OpenCode
+configuration (`~/.config/opencode/`), so they are available in every project. The skills themselves
+stay in the skills repository; the entry starts the server that serves them. Use `--project .` to
+install into a single repository instead.
 
 ```bash
 sdo-writer init --profile 3gpp    # 3GPP
@@ -57,6 +60,7 @@ sdo-writer init --profile itut    # ITU-T
 sdo-writer profiles               # list them
 sdo-writer status                 # what is installed
 sdo-writer update --profile etsi  # restore or refresh
+sdo-writer entry --profile etsi   # print the server entry, for a hand-made opencode.jsonc
 sdo-writer uninstall              # remove everything again
 ```
 
@@ -75,6 +79,9 @@ notes and the project setup. See [docs/profiles.md](docs/profiles.md).
 
 ## The skills
 
+The skills are served, not installed. `sdo-skills-mcp` holds the catalog that maps a profile to its
+layers:
+
 | Layer | Skills |
 | ----- | ------ |
 | common | `sdo-writing`, `sdo-docx`, `sdo-drafting`, `sdo-ipr`, `sdo-project-setup` |
@@ -84,32 +91,29 @@ notes and the project setup. See [docs/profiles.md](docs/profiles.md).
 | tools | `etsi-portal-tool`, `etsi-meeting-report` |
 
 Each skill is a directory with a `SKILL.md` and, where the content is too long for a prompt,
-`references/`, `assets/` and `scripts/`. The agent loads a skill when the request matches its
-description, and reads the references only when it needs them. The catalogue is in
+`references/`, `assets/` and `scripts/`. The agent lists the skills with `sdo_list_skills`, reads one
+with `sdo_read_skill`, and follows a reference only when it needs it. The catalogue is in
 [docs/skills.md](docs/skills.md).
 
 ## How a writing session looks
 
 1. You ask for a contribution, a meeting document, a work item description or a deliverable section.
-2. The agent loads the drafting skill for your body, plus the procedure skill that explains who does what.
+2. The agent lists the skills, reads the drafting skill for your body and the procedure skill that explains who does what.
 3. It copies the skeleton from `assets/`, fills it through OfficeCLI, and keeps the styles intact.
 4. It runs the checklist that belongs to the document type before it calls the work done.
 
 The agent does not write from memory about a body it has a rule for. If the request touches IPR,
-the Directives or a numbering rule, it loads the skill that holds the rule.
+the Directives or a numbering rule, it reads the skill that holds the rule.
 
-## Working with the sources
+## Working on the skills
 
-The skill text is not edited here. It comes from the skills repository, pinned in `src/sdo_writer/vendor.lock`:
+The skill text is not edited here, and it is not copied here either. It lives in
+[jr2804/sdo-skills](https://github.com/jr2804/sdo-skills); the layer catalog that decides which
+profile sees which skill lives in [jr2804/sdo-skills-mcp](https://github.com/jr2804/sdo-skills-mcp).
 
-```bash
-uv run python scripts/vendor_skills.py \
-    --source D:/path/to/sdo-skills \
-    --ref v0.1.0 \
-    --extra-source etsi-portal-tool=D:/path/to/etsi-portal-tool
-```
-
-See [docs/skills.md](docs/skills.md) for how the layers are laid out and how a new skill is added.
+A change in either of those repositories needs no release of this package. A change to the agent
+prompt or to the profile shape does. See [docs/skills.md](docs/skills.md) for how the three
+repositories fit together.
 
 ## Development
 
@@ -123,10 +127,10 @@ mise all          # everything the CI runs
 mise docs-serve   # live preview of the documentation
 ```
 
-The `init` command is the interesting part of the package: it reads a profile, resolves the
-vendored skills, writes them into an OpenCode configuration directory and records a manifest so
-that `update` and `uninstall` know what belongs to it. The behaviour is covered by tests in
-`tests/`.
+The `init` command is the interesting part of the package: it reads a profile, renders the agent,
+merges one `mcp.servers` entry into `opencode.json` (or prints it when the file is JSONC) and records
+a manifest so that `status`, `update` and `uninstall` know what belongs to it. The behaviour is
+covered by tests in `tests/`.
 
 ## Tech stack
 

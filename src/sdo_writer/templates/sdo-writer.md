@@ -2,12 +2,11 @@
 description: {{description}}
 mode: {{mode}}
 color: {{color}}
-temperature: {{temperature}}
-permission:
-  skill:
-    "*": deny
-{{skill_permissions}}
-  bash:
-    "*": ask
-{{bash_permissions}}
----
+permissions:
+  - action: skill
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: ask
+{{shell_permissions}}{{mcp_permissions}}---

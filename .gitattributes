@@ -1,4 +1,4 @@
-# The vendored snapshot is a verbatim copy of the skills. Keep the line
-# endings as they are in the source repository, so that a checkout on
-# Windows does not change the bytes of the installed skills.
-_vendor/** -text
+# The skill text no longer lives in this repository: it is served over MCP.
+# There is nothing to keep byte-identical, so this file only pins the usual
+# normalisation of text files to LF.
+* text=auto

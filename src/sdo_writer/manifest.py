@@ -1,11 +1,13 @@
 """The installer manifest.
 
-The manifest records what a previous install put on disk, so that an update
-can replace exactly those skills and an uninstall can remove exactly those
-skills, without touching anything the user added themselves.
+The manifest records what a previous install put on disk, so that a status
+check can look for exactly those files and an uninstall can remove exactly
+those files, without touching anything the user added themselves.
 
-It is written as JSON next to the skills, in the OpenCode configuration
-directory.
+It is written as JSON into the OpenCode configuration directory. The ``skills``
+mapping is kept for compatibility: an install from before the skills moved to
+the ``sdo-skills-mcp`` server lists the skill directories it copied, and those
+are removed on the next install or uninstall.
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
-MANIFEST_VERSION = 1
+MANIFEST_VERSION = 2
 
 
 @dataclass
@@ -25,23 +27,25 @@ class Manifest:
     Attributes:
         version: Schema version of the manifest.
         profile: Identifier of the profile that was installed.
-        source: Description of the skill source, for example
-            ``sdo-skills@v0.1.0`` or a checkout path.
         installed_at: Timestamp of the last install, in ISO 8601 format.
-        skills: Mapping of skill identifier to content hash.
         agent: File name of the installed agent, or ``None``.
+        mcp_server: Name of the MCP server entry in the OpenCode configuration.
+        mcp_config: File name of the OpenCode configuration that holds it.
+        skills: Skill directories left by an install that copied them; empty
+            for an install that serves the skills from the server.
     """
 
     version: int = MANIFEST_VERSION
     profile: str = ""
-    source: str = ""
     installed_at: str = ""
-    skills: dict[str, str] = field(default_factory=dict)
     agent: str | None = None
+    mcp_server: str = ""
+    mcp_config: str = ""
+    skills: dict[str, str] = field(default_factory=dict)
 
     @property
     def installed_skills(self) -> list[str]:
-        """Return the identifiers of the installed skills, sorted."""
+        """Return the identifiers of the copied skills, sorted."""
         return sorted(self.skills)
 
 
@@ -60,10 +64,11 @@ def load_manifest(path: Path) -> Manifest | None:
     return Manifest(
         version=int(data.get("version", MANIFEST_VERSION)),
         profile=str(data.get("profile", "")),
-        source=str(data.get("source", "")),
         installed_at=str(data.get("installed_at", "")),
-        skills={str(k): str(v) for k, v in skills.items()} if isinstance(skills, dict) else {},
         agent=agent if isinstance(agent, str) and agent else None,
+        mcp_server=_text(data.get("mcp_server")),
+        mcp_config=_text(data.get("mcp_config")),
+        skills={str(k): str(v) for k, v in skills.items()} if isinstance(skills, dict) else {},
     )
 
 
@@ -73,9 +78,15 @@ def save_manifest(path: Path, manifest: Manifest) -> None:
     payload = {
         "version": manifest.version,
         "profile": manifest.profile,
-        "source": manifest.source,
         "installed_at": manifest.installed_at or datetime.now(UTC).isoformat(timespec="seconds"),
-        "skills": dict(sorted(manifest.skills.items())),
         "agent": manifest.agent,
+        "mcp_server": manifest.mcp_server,
+        "mcp_config": manifest.mcp_config,
+        "skills": dict(sorted(manifest.skills.items())),
     }
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+
+
+def _text(value: object) -> str:
+    """Return a manifest field as text, empty when it is not a string."""
+    return value if isinstance(value, str) else ""

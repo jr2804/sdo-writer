@@ -1,8 +1,10 @@
 """Writer profiles.
 
 A profile is the small amount of configuration that differs between the ETSI,
-3GPP and ITU-T writers: which skill layers to install, which extra skills to
-add, and how the agent is presented.
+3GPP and ITU-T writers: the agent's description, its colour, the commands it
+may run without asking, and the notes appended to its prompt. Which skills the
+profile can use is decided by the ``sdo-skills-mcp`` server, whose own catalog
+maps a profile identifier to a set of skills.
 
 Profiles are TOML files in the package, so they are readable, commentable and
 need no parser beyond the standard library.
@@ -31,9 +33,6 @@ class Profile:
         agent_name: File name of the installed agent, without extension.
         mode: OpenCode agent mode (``primary`` or ``subagent``).
         color: Agent colour in the OpenCode user interface.
-        temperature: Sampling temperature of the agent.
-        layers: Skill layers to install. ``common`` is always present.
-        extra_skills: Skills from other sources that the profile adds.
         tools_allow: Shell commands the agent may run without asking.
         notes: Markdown appended to the agent prompt, specific to the SDO.
     """
@@ -44,19 +43,8 @@ class Profile:
     agent_name: str = AGENT_NAME
     mode: str = "primary"
     color: str = "#2f6f9f"
-    temperature: float = 0.1
-    layers: tuple[str, ...] = ("common",)
-    extra_skills: tuple[str, ...] = ()
     tools_allow: tuple[str, ...] = ()
     notes: str = ""
-
-    @property
-    def skill_layers(self) -> tuple[str, ...]:
-        """Return the layers to install, with ``common`` first and never missing."""
-        layers = list(self.layers)
-        if "common" not in layers:
-            layers.insert(0, "common")
-        return tuple(layers)
 
 
 class ProfileError(Exception):
@@ -105,18 +93,11 @@ def _build(profile_id: str, data: dict[str, Any]) -> Profile:
             raise ProfileError(msg)
 
     agent = data.get("agent", {})
-    layers = data.get("layers", {})
-    skills = data.get("skills", {})
     tools = data.get("tools", {})
     notes = data.get("notes", {})
 
-    if not isinstance(agent, dict) or not isinstance(layers, dict):
-        msg = f"Profile '{profile_id}' has a malformed [agent] or [layers] section"
-        raise ProfileError(msg)
-
-    temperature = agent.get("temperature", 0.1)
-    if not isinstance(temperature, (int, float)):
-        msg = f"Profile '{profile_id}' has a non-numeric agent.temperature"
+    if not isinstance(agent, dict):
+        msg = f"Profile '{profile_id}' has a malformed [agent] section"
         raise ProfileError(msg)
 
     return Profile(
@@ -126,9 +107,6 @@ def _build(profile_id: str, data: dict[str, Any]) -> Profile:
         agent_name=str(agent.get("name", AGENT_NAME)),
         mode=str(agent.get("mode", "primary")),
         color=str(agent.get("color", "#2f6f9f")),
-        temperature=float(temperature),
-        layers=tuple(str(layer) for layer in layers.get("include", ["common"])),
-        extra_skills=tuple(str(skill) for skill in skills.get("extra", [])),
         tools_allow=tuple(str(tool) for tool in tools.get("allow", [])),
         notes=str(notes.get("body", "")),
     )

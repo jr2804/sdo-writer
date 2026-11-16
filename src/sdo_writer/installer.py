@@ -1,9 +1,12 @@
 """Installing, updating and removing the writer.
 
-The installer only ever touches what a previous install put on disk. Skills
-that the user added themselves are never modified or removed; when an
-installed skill name collides with a foreign directory, the install reports
-the conflict and leaves the directory alone.
+An install writes three things and nothing else: the agent file, one
+``mcp.servers`` entry in the OpenCode configuration, and the manifest. Skill
+content is served by ``sdo-skills-mcp`` and never lands on disk, so there are
+no skill directories to copy, hash, conflict or drift.
+
+A manifest from an earlier version, which did install skills, is honoured on
+the way out: the skill directories it lists are removed once.
 """
 
 from __future__ import annotations
@@ -14,14 +17,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from .agent import render_agent
-from .lockfile import LockFile
 from .manifest import Manifest, load_manifest, save_manifest
-from .paths import agents_dir, manifest_path, skills_dir
+from .mcp import (
+    MCP_SERVER_NAME,
+    entry_json,
+    has_server,
+    read_config,
+    remove_server,
+    server_entry,
+    write_server,
+)
+from .paths import agents_dir, config_file, manifest_path, skills_dir
 from .profile import Profile
-from .sources import SkillSource, hash_skill
-
-#: Files that are never copied into the configuration directory.
-COPY_IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo", ".DS_Store")
 
 
 @dataclass
@@ -31,44 +38,40 @@ class InstallReport:
     Attributes:
         profile: Identifier of the profile that was installed.
         config_dir: OpenCode configuration directory that was written to.
-        installed: Skills that were newly added.
-        updated: Skills whose content changed.
-        unchanged: Skills that were already up to date.
-        removed: Skills that a previous install had put there but that the
-            profile no longer contains.
-        missing: Skills the profile asks for that the source does not provide.
-        conflicts: Skill directories that already existed and were not written.
         agent_path: Path of the installed agent file.
+        agent_written: Whether the agent file changed.
+        mcp_written: Whether the server entry was written to the configuration.
+        mcp_pending: The entry the user has to add by hand, when the
+            configuration is JSONC or otherwise not writable.
+        removed_skills: Skill directories of an earlier, vendoring install
+            that were removed.
+        config_path: Path of the OpenCode configuration file.
     """
 
     profile: str
     config_dir: Path
-    installed: list[str] = field(default_factory=list)
-    updated: list[str] = field(default_factory=list)
-    unchanged: list[str] = field(default_factory=list)
-    removed: list[str] = field(default_factory=list)
-    missing: list[str] = field(default_factory=list)
-    conflicts: list[str] = field(default_factory=list)
     agent_path: Path | None = None
+    agent_written: bool = False
+    mcp_written: bool = False
+    mcp_pending: dict | None = None
+    removed_skills: list[str] = field(default_factory=list)
 
     @property
-    def changed(self) -> int:
-        """Return the number of skills that were written."""
-        return len(self.installed) + len(self.updated)
+    def config_path(self) -> Path:
+        """Return the OpenCode configuration file of the target."""
+        return config_file(self.config_dir)
 
     @property
-    def ok(self) -> bool:
-        """Return whether the install completed without missing skills."""
-        return not self.missing
+    def pending_json(self) -> str:
+        """Return the entry that could not be written, as JSON."""
+        return entry_json(self.mcp_pending or {})
 
 
 def install(
     profile: Profile,
     config_dir: Path,
-    source: SkillSource,
-    lock: LockFile,
     *,
-    force: bool = False,
+    roots: list[Path] | None = None,
     write_agent: bool = True,
 ) -> InstallReport:
     """Install a profile into an OpenCode configuration directory.
@@ -76,112 +79,83 @@ def install(
     Args:
         profile: The profile to install.
         config_dir: The OpenCode configuration directory to write to.
-        source: Where the skill content comes from.
-        lock: The lock file, used to map profiles to skills.
-        force: Overwrite skill directories that the installer did not create.
+        roots: Skill roots passed to the server; the server falls back to
+            ``SDO_SKILLS_ROOTS`` when this is empty.
         write_agent: Whether to write the agent file.
 
     Returns:
         A report of what was done.
+
+    Raises:
+        McpError: If the existing configuration has a malformed ``mcp`` section.
     """
     report = InstallReport(profile=profile.id, config_dir=config_dir)
-    target_root = skills_dir(config_dir)
-    target_root.mkdir(parents=True, exist_ok=True)
-
-    manifest_file = manifest_path(config_dir)
-    previous = load_manifest(manifest_file)
-    previous_skills = previous.skills if previous else {}
-
-    wanted = wanted_skills(lock, profile)
-    installed: dict[str, str] = {}
-
-    for skill_id in wanted:
-        source_dir = source.path_for(skill_id)
-        if source_dir is None:
-            report.missing.append(skill_id)
-            if skill_id in previous_skills:
-                installed[skill_id] = previous_skills[skill_id]
-            continue
-
-        target_dir = target_root / skill_id
-        if target_dir.exists() and skill_id not in previous_skills and not force:
-            report.conflicts.append(skill_id)
-            continue
-
-        digest = hash_skill(source_dir)
-        if target_dir.exists() and hash_skill(target_dir) == digest:
-            report.unchanged.append(skill_id)
-            installed[skill_id] = digest
-            continue
-
-        _copy_skill(source_dir, target_dir)
-        installed[skill_id] = digest
-        if skill_id in previous_skills:
-            report.updated.append(skill_id)
-        else:
-            report.installed.append(skill_id)
-
-    for skill_id in previous_skills:
-        if skill_id in installed or skill_id in report.missing:
-            continue
-        target_dir = target_root / skill_id
-        if target_dir.is_dir():
-            shutil.rmtree(target_dir)
-        report.removed.append(skill_id)
+    previous = load_manifest(manifest_path(config_dir))
+    report.removed_skills = _remove_legacy_skills(config_dir, previous)
 
     if write_agent:
-        agent_path = agents_dir(config_dir) / f"{profile.agent_name}.md"
-        agent_path.parent.mkdir(parents=True, exist_ok=True)
-        agent_path.write_text(render_agent(profile, tuple(installed)), encoding="utf-8")
-        report.agent_path = agent_path
+        report.agent_path = _write_agent(profile, config_dir)
+        report.agent_written = True
+
+    entry = server_entry(profile.id, list(roots or []))
+    pending = write_server(config_file(config_dir), MCP_SERVER_NAME, entry)
+    report.mcp_written = pending is None
+    report.mcp_pending = pending
 
     manifest = Manifest(
         profile=profile.id,
-        source=f"{source.kind}:{source.root}",
         installed_at=datetime.now(UTC).isoformat(timespec="seconds"),
-        skills=installed,
         agent=f"{profile.agent_name}.md" if write_agent else None,
+        mcp_server=MCP_SERVER_NAME,
+        mcp_config=config_file(config_dir).name,
     )
-    save_manifest(manifest_file, manifest)
-
+    save_manifest(manifest_path(config_dir), manifest)
     return report
 
 
-def wanted_skills(lock: LockFile, profile: Profile) -> list[str]:
-    """Return the identifiers of the skills a profile wants, in a stable order."""
-    ids = [entry.id for entry in lock.skills_for_layers(profile.skill_layers)]
-    for skill_id in profile.extra_skills:
-        if skill_id not in ids:
-            ids.append(skill_id)
-    return ids
+def _write_agent(profile: Profile, config_dir: Path) -> Path:
+    """Render the agent file, returning its path."""
+    agent_path = agents_dir(config_dir) / f"{profile.agent_name}.md"
+    agent_path.parent.mkdir(parents=True, exist_ok=True)
+    agent_path.write_text(render_agent(profile), encoding="utf-8")
+    return agent_path
 
 
-def _copy_skill(source_dir: Path, target_dir: Path) -> None:
-    """Copy a skill directory, replacing an existing one."""
-    if target_dir.exists():
-        shutil.rmtree(target_dir)
-    shutil.copytree(source_dir, target_dir, ignore=COPY_IGNORE)
+def status(config_dir: Path) -> tuple[Manifest | None, list[str]]:
+    """Return the manifest and everything that no longer matches it.
+
+    Returns:
+        The manifest, or ``None`` when nothing is installed, and a list of
+        problems: a missing agent file, a missing server entry, a
+        configuration that cannot be read.
+    """
+    manifest = load_manifest(manifest_path(config_dir))
+    if manifest is None:
+        return None, []
+
+    problems: list[str] = []
+    if manifest.agent and not (agents_dir(config_dir) / manifest.agent).is_file():
+        problems.append(f"agent file missing: {manifest.agent}")
+
+    present = has_server(read_config(config_file(config_dir)), manifest.mcp_server or MCP_SERVER_NAME)
+    if present is None:
+        problems.append("configuration is not plain JSON; check the server entry by hand")
+    elif not present:
+        problems.append(f"server entry missing: {manifest.mcp_server or MCP_SERVER_NAME}")
+    return manifest, problems
 
 
-def uninstall(config_dir: Path) -> tuple[list[str], Path | None]:
+def uninstall(config_dir: Path) -> tuple[Path | None, bool, list[str]]:
     """Remove everything a previous install put on disk.
 
     Returns:
-        The identifiers of the removed skills and the path of the removed
-        agent file.
+        The path of the removed agent file, whether the server entry was
+        removed, and the skill directories of an earlier install that were
+        removed.
     """
-    manifest_file = manifest_path(config_dir)
-    manifest = load_manifest(manifest_file)
+    manifest = load_manifest(manifest_path(config_dir))
     if manifest is None:
-        return [], None
-
-    removed: list[str] = []
-    target_root = skills_dir(config_dir)
-    for skill_id in manifest.skills:
-        target_dir = target_root / skill_id
-        if target_dir.is_dir():
-            shutil.rmtree(target_dir)
-        removed.append(skill_id)
+        return None, False, []
 
     agent_path: Path | None = None
     if manifest.agent:
@@ -190,25 +164,22 @@ def uninstall(config_dir: Path) -> tuple[list[str], Path | None]:
             candidate.unlink()
             agent_path = candidate
 
-    manifest_file.unlink(missing_ok=True)
-    return removed, agent_path
+    removed_server = remove_server(config_file(config_dir), manifest.mcp_server or MCP_SERVER_NAME)
+    removed_skills = _remove_legacy_skills(config_dir, manifest)
+
+    manifest_path(config_dir).unlink(missing_ok=True)
+    return agent_path, removed_server, removed_skills
 
 
-def status(config_dir: Path) -> tuple[Manifest | None, list[str]]:
-    """Return the manifest and the skills whose content drifted.
-
-    Returns:
-        The manifest, or ``None`` when nothing is installed, and the list of
-        skills whose files no longer match the recorded hash.
-    """
-    manifest = load_manifest(manifest_path(config_dir))
-    if manifest is None:
-        return None, []
-
-    drifted: list[str] = []
-    target_root = skills_dir(config_dir)
-    for skill_id, digest in manifest.skills.items():
-        target_dir = target_root / skill_id
-        if not target_dir.is_dir() or hash_skill(target_dir) != digest:
-            drifted.append(skill_id)
-    return manifest, drifted
+def _remove_legacy_skills(config_dir: Path, manifest: Manifest | None) -> list[str]:
+    """Remove the skill directories a vendoring install left behind."""
+    if manifest is None or not manifest.skills:
+        return []
+    root = skills_dir(config_dir)
+    removed: list[str] = []
+    for skill_id in manifest.skills:
+        target = root / skill_id
+        if target.is_dir():
+            shutil.rmtree(target)
+            removed.append(skill_id)
+    return removed

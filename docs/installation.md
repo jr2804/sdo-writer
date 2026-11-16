@@ -4,8 +4,9 @@ title: Installation
 
 ## Installation
 
-The package installs itself into an OpenCode configuration directory. Nothing else is needed:
-every external tool the skills use is pulled on demand through `mise`.
+The package writes one agent file and one MCP server entry into an OpenCode configuration
+directory. The skills themselves are not copied: the entry starts `sdo-skills-mcp`, which serves
+them for the selected profile.
 
 ### One line
 
@@ -13,9 +14,11 @@ every external tool the skills use is pulled on demand through `mise`.
 uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer init --profile etsi
 ```
 
-`uvx` downloads the package, runs the `init` command and throws the temporary environment away. The installed skills and the agent stay behind.
+`uvx` downloads the package, runs the `init` command and throws the temporary environment away.
+The agent file, the server entry and the manifest stay behind.
 
-The package is not on PyPI yet, so `uvx` needs the repository as its source. Most people alias that once:
+The package is not on PyPI yet, so `uvx` needs the repository as its source. Most people alias that
+once:
 
 ```bash
 alias sdo-writer='uvx --from "git+https://github.com/jr2804/sdo-writer" sdo-writer'
@@ -28,12 +31,15 @@ The examples below use that alias.
 | Path | Content |
 | ---- | ------- |
 | `~/.config/opencode/agents/sdo-writer.md` | The writer agent |
-| `~/.config/opencode/skills/<skill-id>/` | One directory per skill, with its `references/`, `assets/` and `scripts/` |
-| `~/.config/opencode/sdo-writer.json` | The manifest: profile, source, timestamp and the hash of every installed skill |
+| `~/.config/opencode/opencode.json` | One `mcp.servers.sdo-skills` entry that starts the skills server |
+| `~/.config/opencode/sdo-writer.json` | The manifest: profile, agent file, server name, config file and timestamp |
 
-On Windows the global directory is `%USERPROFILE%\.config\opencode`. When `XDG_CONFIG_HOME` is set, it wins.
+On Windows the global directory is `%USERPROFILE%\.config\opencode`. When `XDG_CONFIG_HOME` is set,
+it wins.
 
-OpenCode reads `~/.config/opencode/skills/` without any further configuration, so the skills are available in every project once the install finishes.
+The first time OpenCode starts the server it runs `uvx --from
+git+https://github.com/jr2804/sdo-skills-mcp sdo-skills-mcp serve --profile <id>`, so the machine
+needs network access once per release. After that `uvx` reuses its cache.
 
 ### Choosing a target
 
@@ -48,20 +54,33 @@ sdo-writer init --profile etsi --project /path/to/repo
 sdo-writer init --profile etsi --config /path/to/.opencode
 ```
 
+### The skills root
+
+The server reads the skills from a directory tree. Pass `--skills-root` once per root, either to
+`init` or to `entry`:
+
+```bash
+sdo-writer init --profile etsi --skills-root ~/src/sdo-skills/skills
+```
+
+The flag is repeatable and ends up in the server command as `--root <path>`. Without it the server
+falls back to its own default, the `SDO_SKILLS_ROOTS` environment variable, and finally to the skill
+directories that ship inside the server package.
+
 ### Profiles
 
 ```bash
 sdo-writer profiles
 ```
 
-| Profile | Layers | Focus |
-| ------- | ------ | ----- |
-| `etsi` | common, etsi | Contributions, meeting documents, work items, ETSI deliverables |
-| `3gpp` | common, 3gpp | TDoc conventions, change requests, working groups, specification metadata |
-| `itut` | common, itut | Contribution rules, recommendation structure, patent policy |
+| Profile | Focus |
+| ------- | ----- |
+| `etsi` | Contributions, meeting documents, work items, ETSI deliverables, portal tooling |
+| `3gpp` | TDoc conventions, change requests, working groups, specification metadata |
+| `itut` | Contribution rules, recommendation structure, patent policy |
 
-The `etsi` profile also installs the two tool skills `etsi-portal-tool` and `etsi-meeting-report`.
-They come from the portal tool repository rather than from the skills repository.
+The profile decides which skills the server serves, not which files are copied. The `etsi` profile
+also serves the two tool skills `etsi-portal-tool` and `etsi-meeting-report`.
 
 ### Checking the result
 
@@ -69,11 +88,8 @@ They come from the portal tool repository rather than from the skills repository
 sdo-writer status
 ```
 
-The output lists the installed skills. A `!` next to a skill means its files on disk no longer match
-the recorded hash - somebody edited them. `update` restores them.
-
-The hash ignores the line endings of text files, so a checkout that converts them (git with
-`core.autocrlf` on Windows) does not report a change.
+The output names the profile, the agent file and the server entry. A `!` line means something the
+installer wrote is missing or the configuration is no longer plain JSON; `update` restores it.
 
 ### Updating
 
@@ -81,9 +97,8 @@ The hash ignores the line endings of text files, so a checkout that converts the
 sdo-writer update --profile etsi
 ```
 
-`update` is `init` with the same guarantees: skills whose content changed are replaced, skills that
-are unchanged are left alone, and skills that a previous install added but the profile no longer
-contains are removed.
+`update` is `init` without `--dry-run`: it rewrites the agent, replaces the server entry with the
+one for the new profile and refreshes the manifest.
 
 ### Removing
 
@@ -91,31 +106,40 @@ contains are removed.
 sdo-writer uninstall
 ```
 
-Only what the installer wrote is removed. A skill directory that you created yourself is never touched.
+Only what the installer wrote is removed: the agent file, the `mcp.servers` entry and the manifest.
+Skill directories that an earlier, vendoring install left behind are removed too, because the
+manifest lists them.
 
-### Conflicts
+### A configuration with comments
 
-If a skill directory with the same name already exists and the manifest does not list it, the install leaves it alone and reports it as a conflict:
+OpenCode reads both `opencode.json` and `opencode.jsonc`. A JSONC file carries comments, and a
+rewrite would lose them, so the installer never touches it. It prints the entry and leaves the file
+alone:
 
 ```text
-Conflicts: sdo-writing
+~/.config/opencode/opencode.jsonc could not be rewritten, so add this by hand:
+{
+  "mcp": {
+    "servers": {
+      "sdo-skills": {
+        "type": "local",
+        "command": ["uvx", "--python", "3.13", "--from", "git+https://github.com/jr2804/sdo-skills-mcp", "sdo-skills-mcp", "serve", "--profile", "etsi"]
+      }
+    }
+  }
+}
 ```
 
-That is the case when a project already carries a hand-made copy of one of the skills. Either
-rename the old directory or pass `--force` to let the installer replace it.
-
-### Development mode
-
-To install straight from a checkout of the skills repository instead of the vendored snapshot:
+`entry` prints only that JSON, which makes the copy-paste short:
 
 ```bash
-sdo-writer init --profile etsi --source /path/to/sdo-skills
+sdo-writer entry --profile etsi
 ```
-
-The manifest then records the checkout, and `status` shows that path as the source.
 
 ### Requirements
 
 - Python 3.13 or newer to run the installer (through `uvx`, nothing has to be installed).
+- `uvx` on the machine that runs OpenCode, because the server is started that way.
 - [mise](https://mise.jdx.dev/) for the skills to pull their tools on demand. The skills call
-  `mise x <tool> -- <command>`; without mise they report what is missing instead of failing silently.
+  `mise x <tool> -- <command>`; without mise they report what is missing instead of failing
+  silently.

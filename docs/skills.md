@@ -5,26 +5,65 @@ title: Skills
 ## Skills
 
 The skill text does not live in this repository. It comes from
-[jr2804/sdo-skills](https://github.com/jr2804/sdo-skills), and this package vendors a pinned
-snapshot of it.
+[jr2804/sdo-skills](https://github.com/jr2804/sdo-skills) and is served to the host by
+[jr2804/sdo-skills-mcp](https://github.com/jr2804/sdo-skills-mcp). Nothing is copied into the
+OpenCode configuration.
 
 ### Why the split
 
-The rules change on different schedules. The Directives are revised twice a year, a document
+The three parts change on different schedules. The Directives are revised twice a year, a document
 skeleton changes when a body changes its templates, the writing style changes when you decide it
-does. The installer changes when a new release of this package appears. Keeping the text in its
-own repository means a rules fix does not need a new installer, and the installer does not need
-to carry the rules.
+does. The agent prompt changes when the workflow does, the server when the skill format or the MCP
+extension does. Keeping the text in its own repository means a rules fix does not need a new agent
+release, and the agent does not need to carry the rules.
 
-### The layers
+The path is:
 
-| Layer | Skills | Holds |
-| ----- | ------ | ----- |
-| `common` | `sdo-writing`, `sdo-docx`, `sdo-drafting`, `sdo-ipr`, `sdo-project-setup` | Writing style, DOCX mechanics, drafting skeletons, IPR notes, project setup |
-| `etsi` | `etsi-governance`, `etsi-directives`, `etsi-procedures`, `etsi-tools` | ETSI structure, the Directives, procedures and approval routes, portal and specification tooling |
-| `3gpp` | `3gpp-basics`, `3gpp-meetings`, `3gpp-working-groups`, `3gpp-releases`, `3gpp-specifications`, `3gpp-tdocs`, `3gpp-change-request`, `3gpp-portal-authentication` | 3GPP structure, meetings, working groups, releases, specification metadata, TDoc conventions, change requests, portal session handling |
-| `itut` | `itut-reference`, `itut-contributions` | ITU-T working methods, recommendation structure, contribution rules |
-| `tools` | `etsi-portal-tool`, `etsi-meeting-report` | The portal CLI and the meeting report builder, from the portal tool repository |
+```text
+sdo-skills        the skill text, one directory per skill
+     │
+     ▼
+sdo-skills-mcp    one MCP server per profile, serving those directories
+     │
+     ▼
+sdo-writer        the agent prompt and its permissions (this repository)
+```
+
+### The profiles
+
+The server owns the layer table and the profile catalog. A profile identifier is the only thing this
+package sends to it: the same `etsi` that renders the agent selects the skills.
+
+| Profile | Layers | Skills |
+| ------- | ------ | ------ |
+| `etsi` | `common`, `etsi`, `tools` | 11 |
+| `3gpp` | `common`, `3gpp` | 13 |
+| `itut` | `common`, `itut` | 7 |
+
+| Layer | Holds |
+| ----- | ----- |
+| `common` | Writing style, DOCX mechanics, drafting skeletons, IPR notes, project setup |
+| `etsi` | ETSI structure, the Directives, procedures and approval routes, portal and specification tooling |
+| `3gpp` | 3GPP structure, meetings, working groups, releases, specification metadata, TDoc conventions, change requests, portal session handling |
+| `itut` | ITU-T working methods, recommendation structure, contribution rules |
+| `tools` | The portal CLI and the meeting report builder |
+
+The counts above come from the server's own profiles; this repository does not repeat the layer
+table, because two copies of it would drift.
+
+### How the agent reaches a skill
+
+Two paths, one content:
+
+- Hosts that implement the MCP Skills extension list and read the skills natively. OpenCode does
+  not do that today.
+- Every host can call the server's two tools, `sdo_list_skills` and `sdo_read_skill`. The agent
+  prompt tells the model to call them.
+
+The agent file carries the permissions for both: one `allow` rule per server tool, and
+`opencode_read_mcp_resource` on `sdo-skills:*` for the resource path. Local skills on disk stay
+denied, so a copy that somebody drops into `~/.config/opencode/skills` cannot shadow the served
+version.
 
 ### The shape of a skill
 
@@ -44,63 +83,12 @@ answers a family of questions gets a directory.
 The frontmatter carries a `name` and a `description`. The description is a list of triggers, not a
 summary: the agent matches the request against it to decide whether to load the skill.
 
-### The lock file
-
-`src/sdo_writer/vendor.lock` records what is vendored:
-
-```toml
-version = 1
-
-[[source]]
-id = "sdo-skills"
-repo = "https://github.com/jr2804/sdo-skills.git"
-ref = "v0.1.0"
-
-[[source]]
-id = "etsi-portal-tool"
-repo = "https://forge.etsi.org/rep/reimes/etsi-portal-tool.git"
-ref = "v0.1.0"
-
-[skill]
-"3gpp-basics" = { layer = "3gpp", source = "sdo-skills" }
-"sdo-writing" = { layer = "common", source = "sdo-skills" }
-```
-
-The `layer` decides which profile gets the skill. The `source` decides which directory in `_vendor/` it is copied from.
-
-### Re-vendoring
-
-```bash
-uv run python scripts/vendor_skills.py \
-    --source /path/to/sdo-skills \
-    --ref v0.1.0 \
-    --repo https://github.com/jr2804/sdo-skills.git \
-    --extra-source etsi-portal-tool=/path/to/etsi-portal-tool
-```
-
-The script copies the skill directories into
-`src/sdo_writer/_vendor/<source-id>/<skill-id>/` and rewrites the lock file. It never
-touches the network: whoever prepares a release decides what goes into the package.
-
-Options:
-
-| Option | Meaning |
-| ------ | ------- |
-| `--source` | Checkout of the skills repository (required) |
-| `--ref` | Revision to record in the lock file (required) |
-| `--repo` | Repository URL to record for the main source |
-| `--extra-source ID=PATH` | Additional source of skills, for example a tool repository |
-| `--output` | Lock file to write (default `src/sdo_writer/vendor.lock`) |
-| `--vendor-dir` | Directory for the snapshot (default `src/sdo_writer/_vendor`) |
-
 ### Adding a skill
 
 1. Write it in the skills repository, under the layer that owns the topic, and let the linter there pass.
-2. Re-vendor. The new skill appears in `_vendor/` and in the lock file with its layer.
-3. If a profile should get it, add the layer to the profile's `[layers] include` list. A skill outside the profile's layers is vendored but not installed.
-4. Run `mise all` and `mise run test`.
-
-The install path needs no change: the installer reads the lock file, and the profile decides the layers.
+2. Add it to that layer in `sdo-skills-mcp`'s `catalog.toml`.
+3. Run `sdo-skills-mcp check --profile etsi` to confirm that every skill of the profile resolves.
+4. Nothing changes here. This repository carries no skill list, only the layers a profile serves.
 
 ### Rules for the skills
 

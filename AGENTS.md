@@ -94,20 +94,23 @@ change. Summary:
 _Always-injected_ - keep minimal. Everything else → `.agents/` files.
 
 1. **The skill text is not edited here.** Rule content lives in
-   [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills). This repository
-   vendors a snapshot of it and pins the revision in
-   `src/sdo_writer/vendor.lock`. Change a skill in the skills
-   repository, re-vendor, never in `_vendor/`.
-2. **The installer only touches what it wrote.** A skill directory that the
-   manifest does not list is never modified or removed; the install reports a
-   conflict instead. This is a hard rule, not a preference.
-3. **No network in the build.** `scripts/vendor_skills.py` works on local
-   checkouts. A release is prepared from a checkout, never from a clone
-   during the build.
+   [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills) and reaches the
+   host through [jr2804/sdo-skills-mcp](https://github.com/jr2804/sdo-skills-mcp).
+   This package carries no skill text and no copy of it: never reintroduce a
+   vendored snapshot, a lock file or a skill installer here.
+2. **The installer only touches what it wrote.** It writes the agent file, one
+   `mcp.servers` entry and the manifest. It removes a skill directory only when
+   the manifest of an earlier, vendoring install lists it. Anything else on
+   disk is left alone. This is a hard rule, not a preference.
+3. **The configuration is JSON, or it is not touched.** `opencode.json` may be
+   merged. An `opencode.jsonc` carries comments that a rewrite would lose, so
+   the installer prints the entry and leaves the file alone. Never strip
+   comments to make a write possible.
 4. **Nothing has to be installed.** Every command in the skills, in the docs
    and in the agent text is written as `mise x <tool> -- <command>`.
-5. **OpenCode V2 syntax.** The agent file uses the `permission:` map, not the
-   V1 `permissions:` array. Keep the rendered frontmatter valid V2.
+5. **OpenCode V2 syntax.** The agent file uses the `permissions:` rule list
+   (`action`/`resource`/`effect`), not the V1 `permission:` map, and carries no
+   V1 `temperature` or `tools` field. MCP servers live under `mcp.servers`.
 6. **The test suite is the contract.** The package keeps a 100% coverage gate
    (`--cov-fail-under=100`). New behaviour comes with a test.
 7. **One product, one name.** The repository, the CLI command and the agent
@@ -129,10 +132,9 @@ Top-level boundaries in this project:
 - `src/sdo_writer/` (primary package code)
   - `src/sdo_writer/profiles/` - the writer profiles, one TOML file each
   - `src/sdo_writer/templates/` - the agent templates
-  - `src/sdo_writer/_vendor/` - the vendored skill snapshot (generated)
 - `tests/` (test suite)
 - `docs/` (documentation)
-- `scripts/` (vendoring and credits helpers)
+- `scripts/` (credits helper)
 - `.config/mise/` (task/tooling configuration)
 
 ## ⛔ No Patching

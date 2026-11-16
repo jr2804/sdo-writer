@@ -4,7 +4,8 @@ title: Usage
 
 ## Usage
 
-The install gives you one agent and a set of skills. The agent decides which skills to load; you decide what to write.
+The install gives you one agent and a connection to a skills server. The agent decides which skills
+to load; you decide what to write.
 
 ### Starting a session
 
@@ -26,7 +27,8 @@ Write a change request for TS 38.331, adding a new IE to the measurement gap rep
 Draft the ITU-T Recommendation text for study group 13, clause 5.
 ```
 
-The agent loads the drafting skill, the procedure skill and the writing style skill, and works from the document skeleton rather than from a blank page.
+The agent lists the skills, picks the drafting skill, the procedure skill and the writing style
+skill, and works from the document skeleton rather than from a blank page.
 
 ### What the agent does
 
@@ -39,6 +41,20 @@ The agent file is generated from the profile. It carries a short set of non-nego
 - **The skeleton is the starting point.** Deliverable skeletons live in the skill assets. They are filled, not rebuilt.
 - **The checklist runs before "done".** Each document type has a checklist; the agent works through it and says what it could not verify.
 - **The tool is pulled on demand.** OfficeCLI and the other tools are fetched through `mise` the first time they are needed.
+
+### Reading a skill
+
+The skills arrive over MCP, not from a directory. Two tools do the work:
+
+```text
+sdo_list_skills()                     # name, description and file count of every skill
+sdo_read_skill("etsi-procedures")     # the SKILL.md text, or one reference file
+sdo_read_skill("etsi-procedures", "references/approval-routes.md")
+```
+
+You do not have to call them yourself; the agent does when it picks a skill. It is worth watching
+once, though: if a name in the routing table does not appear in the list, the profile is serving
+fewer skills than you expect.
 
 ### Working with a document
 
@@ -93,3 +109,20 @@ mise x uv -- uv run scripts/build_schedule.py
 
 If mise is missing, the skills say so and name the tool they needed. That is deliberate: a missing
 tool should be a clear message, not a confusing failure three steps later.
+
+### When the server does not start
+
+The agent's first tool call fails if `sdo-skills-mcp` cannot start. Check the command by hand:
+
+```bash
+sdo-writer entry --profile etsi
+```
+
+That prints the exact `command` array from your configuration. Run it: it starts the server on stdio
+and waits for a request, so interrupt it once you see that it did not fail. The usual causes are no
+network on the first run and a `--root` that points at a directory without skills.
+
+The command pins the interpreter (`--python 3.13`) on purpose. `fastmcp` pulls `pywin32` on Windows,
+which has no free-threading wheel, so a machine whose default interpreter is a free-threaded build
+fails to resolve the server with `pywin32 … has no wheels with a free-threading compatible ABI tag`.
+Change the pin only if you know the server installs into another interpreter.

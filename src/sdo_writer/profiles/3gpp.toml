@@ -1,7 +1,7 @@
 # 3GPP writer profile.
 #
-# Installs the common skill layer plus the 3GPP layer, and writes the
-# `sdo-writer` agent. See the project README for the one-line install.
+# Installs the `sdo-writer` agent and points it at the `sdo-skills` server with
+# the 3GPP catalog. See the project README for the one-line install.
 
 id = "3gpp"
 title = "3GPP Writer"
@@ -11,13 +11,6 @@ description = "Drafts 3GPP contributions (TDocs), change requests, meeting agend
 name = "sdo-writer"
 mode = "primary"
 color = "#8a5cf6"
-temperature = 0.1
-
-[layers]
-include = ["common", "3gpp"]
-
-[skills]
-extra = []
 
 [tools]
 # Nothing is assumed to be installed: external tools are pulled on demand
@@ -37,14 +30,14 @@ allow = [
 body = """
 ## 3GPP skills
 
-- `3gpp-basics` — the organisation: TSGs, working groups, the portals, the vocabulary.
-- `3gpp-working-groups` — which working group owns what, the tbid values, the FTP layout of a WG.
-- `3gpp-meetings` — the meeting calendar, the meeting naming and the document numbering.
-- `3gpp-releases` — release naming, version numbers, the freeze cycle.
-- `3gpp-specifications` — TS and TR numbering, the version format, the FTP structure.
-- `3gpp-tdocs` — the TDoc metadata, the number format, the FTP conventions.
-- `3gpp-change-request` — the CR number format, the categories, the submission checklist.
-- `3gpp-portal-authentication` — the portal login, the session scope and the endpoints behind it.
+- `3gpp-basics` - the organisation: TSGs, working groups, the portals, the vocabulary.
+- `3gpp-working-groups` - which working group owns what, the tbid values, the FTP layout of a WG.
+- `3gpp-meetings` - the meeting calendar, the meeting naming and the document numbering.
+- `3gpp-releases` - release naming, version numbers, the freeze cycle.
+- `3gpp-specifications` - TS and TR numbering, the version format, the FTP structure.
+- `3gpp-tdocs` - the TDoc metadata, the number format, the FTP conventions.
+- `3gpp-change-request` - the CR number format, the categories, the submission checklist.
+- `3gpp-portal-authentication` - the portal login, the session scope and the endpoints behind it.
 
 ## 3GPP specifics
 

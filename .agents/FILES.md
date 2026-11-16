@@ -16,17 +16,17 @@ Kept compact — agents hallucinate less when they know where definitions live.
 | Package source root    | `src/sdo_writer/`  | `__init__.py`, `__about__.py` (version)         |
 | CLI entry points       | `src/sdo_writer/cli/`            | `app.py` (Typer app), `args.py`, `commands.py`  |
 | Install logic          | `src/sdo_writer/installer.py`                          | `install`, `update`, `uninstall`, `status`      |
-| Filesystem locations   | `src/sdo_writer/paths.py`                              | `global_config_dir`, `skills_dir`, `agents_dir` |
+| MCP server entry       | `src/sdo_writer/mcp.py`                                | `MCP_SERVER_NAME`, `SERVER_PACKAGE`, `server_entry`, `with_server` |
+| Filesystem locations   | `src/sdo_writer/paths.py`                              | `global_config_dir`, `config_file`, `agents_dir` |
 | Profile model          | `src/sdo_writer/profile.py`                            | `Profile`, `load_profile`, `available_profiles` |
 | Writer profiles        | `src/sdo_writer/profiles/*.toml`                       | `etsi.toml`, `3gpp.toml`, `itut.toml`           |
 | Agent templates        | `src/sdo_writer/templates/`                            | `sdo-writer.md`, `sdo-writer-body.md`           |
-| Vendored skills        | `src/sdo_writer/_vendor/<source>/<skill-id>/`          | generated, never edited                         |
-| Vendored skill lock    | `src/sdo_writer/vendor.lock`                           | `[[source]]`, `[skill]`, `layer`, `ref`         |
-| Vendoring script       | `scripts/vendor_skills.py`                                      | `--source`, `--ref`, `--extra-source`           |
+| Installer manifest     | `<config-dir>/sdo-writer.json`                         | `Manifest`, `MANIFEST_VERSION`, `mcp_server`    |
+| Skills (not here)      | [jr2804/sdo-skills](https://github.com/jr2804/sdo-skills)     | served by `sdo-skills-mcp`, never copied        |
+| Skills server          | [jr2804/sdo-skills-mcp](https://github.com/jr2804/sdo-skills-mcp) | `catalog.toml`, `profiles/*.toml`, `sdo_list_skills`, `sdo_read_skill` |
 | Test suite             | `tests/`                                                        | `test_*.py`, `conftest.py`                      |
 | Project metadata       | `pyproject.toml`                                                | `[project]`, `[tool.pytest.ini_options]`        |
 | Linter/formatter       | `ruff.toml`                                                     | Ruff rule selection, line length                |
-| Structural sorter      | `.config/pyreorder.toml`                                         | `sections`, `strategies`, `hoist_inline_imports` |
 | Structural sorter      | `.config/pyreorder.toml`                                         | `sections`, `strategies`, `hoist_inline_imports` |
 | Type checker           | `ty.toml`                                                       | ty strictness                                   |
 | Markdown linter        | `.config/rumdl.toml`                                            | `line-length`, `flavor`, disabled rules         |

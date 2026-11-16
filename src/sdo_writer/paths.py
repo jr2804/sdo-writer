@@ -6,8 +6,10 @@ OpenCode keeps two kinds of configuration:
   ``$XDG_CONFIG_HOME/opencode``), which every project sees, and
 * the **project** configuration in ``<project>/.opencode``.
 
-Both hold a ``skills/`` directory and an ``agents/`` directory, so the
-installer only has to decide which root it works in.
+Both hold an ``agents/`` directory and an ``opencode.json``; the installer
+writes the agent there and the MCP server entry into that file. The
+``skills/`` directory is only read, to clean up after an install that still
+copied skill files onto disk.
 """
 
 from __future__ import annotations
@@ -16,6 +18,10 @@ import os
 from pathlib import Path
 
 GLOBAL_CONFIG_ENV = "XDG_CONFIG_HOME"
+
+#: Name of the OpenCode configuration file, in either spelling.
+CONFIG_FILE = "opencode.json"
+CONFIG_FILE_JSONC = "opencode.jsonc"
 
 
 def global_config_dir() -> Path:
@@ -32,6 +38,17 @@ def project_config_dir(project: Path | None = None) -> Path:
     """Return the OpenCode configuration directory of a project."""
     root = project if project is not None else Path.cwd()
     return root / ".opencode"
+
+
+def config_file(config_dir: Path) -> Path:
+    """Return the configuration file the installer writes.
+
+    An existing ``opencode.jsonc`` is returned as is: the installer refuses to
+    rewrite it, and printing the entry next to the file it belongs in is more
+    useful than printing it next to a file that does not exist.
+    """
+    jsonc = config_dir / CONFIG_FILE_JSONC
+    return jsonc if jsonc.is_file() else config_dir / CONFIG_FILE
 
 
 def skills_dir(config_dir: Path) -> Path:

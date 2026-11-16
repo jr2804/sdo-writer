@@ -1,4 +1,4 @@
-"""CLI arguments, options, and flags for OpenCode SDO Writer."""
+"""CLI arguments, options, and flags for SDO Writer."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 
 # Application name for environment variables
-APP_NAME_UPPERCASE = "OPENCODE_SDO_WRITER"
+APP_NAME_UPPERCASE = "SDO_WRITER"
 
 # Global options
 
@@ -32,15 +32,6 @@ ProfileArg = Annotated[
     ),
 ]
 
-SourcePath = Annotated[
-    str | None,
-    typer.Option(
-        "--source",
-        "-s",
-        help="Path to a local checkout of the skills repository (development mode)",
-    ),
-]
-
 ConfigPath = Annotated[
     str | None,
     typer.Option(
@@ -58,12 +49,12 @@ ProjectPath = Annotated[
     ),
 ]
 
-ForceFlag = Annotated[
-    bool,
+SkillRoots = Annotated[
+    list[str] | None,
     typer.Option(
-        "--force",
-        "-f",
-        help="Overwrite skill directories that were not created by this installer",
+        "--skills-root",
+        "-r",
+        help=("Directory that holds the skill folders, passed to the skills server. Repeat for more than one; the server falls back to SDO_SKILLS_ROOTS."),
     ),
 ]
 
@@ -71,6 +62,14 @@ DryRunFlag = Annotated[
     bool,
     typer.Option(
         "--dry-run",
-        help="Show what would be done without writing anything",
+        help="Show what would be written without touching anything",
+    ),
+]
+
+NoAgentFlag = Annotated[
+    bool,
+    typer.Option(
+        "--no-agent",
+        help="Write only the MCP server entry, not the agent file",
     ),
 ]

@@ -1,4 +1,4 @@
-"""Typer CLI app for OpenCode SDO Writer."""
+"""Typer CLI app for SDO Writer."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import typer
 from sdo_writer.cli import commands
 
 app = typer.Typer(
-    name="sdo_writer",
+    name="sdo-writer",
     help="OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T)",
     add_completion=True,
     no_args_is_help=True,
@@ -23,6 +23,7 @@ app.command()(commands.profiles)
 app.command()(commands.init)
 app.command()(commands.update)
 app.command()(commands.status)
+app.command()(commands.entry)
 app.command()(commands.uninstall)
 
 

@@ -1,7 +1,7 @@
 # ITU-T writer profile.
 #
-# Installs the common skill layer plus the ITU-T layer, and writes the
-# `sdo-writer` agent. See the project README for the one-line install.
+# Installs the `sdo-writer` agent and points it at the `sdo-skills` server with
+# the ITU-T catalog. See the project README for the one-line install.
 
 id = "itut"
 title = "ITU-T Writer"
@@ -11,13 +11,6 @@ description = "Drafts ITU-T contributions, TDocs, liaison statements and Recomme
 name = "sdo-writer"
 mode = "primary"
 color = "#0f9d8c"
-temperature = 0.1
-
-[layers]
-include = ["common", "itut"]
-
-[skills]
-extra = []
 
 [tools]
 # Nothing is assumed to be installed: external tools are pulled on demand

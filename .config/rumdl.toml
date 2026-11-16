@@ -26,10 +26,9 @@ disable = ["MD033"]
 # ]
 
 # List of file/directory patterns to exclude from linting
-# The vendored skill snapshot is a verbatim copy: reformatting it would break
-# the vendoring contract. The agent templates are prompt bodies, not documents.
+# The agent templates are prompt bodies, not documents: linting them as
+# Markdown would rewrite a prompt that the agent reads verbatim.
 exclude = [
-    "src/sdo_writer/_vendor",
     "src/sdo_writer/templates",
 ]
 

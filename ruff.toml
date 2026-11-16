@@ -1,6 +1,6 @@
 
 unsafe-fixes = true
-exclude = [".venv", ".tmp", "build", "dist", "__pypackages__", "src/sdo_writer/_vendor"]
+exclude = [".venv", ".tmp", "build", "dist", "__pypackages__"]
 target-version = "py313"
 line-length = 160
 

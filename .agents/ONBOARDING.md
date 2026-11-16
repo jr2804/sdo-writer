@@ -5,7 +5,7 @@ project structure or tooling changes significantly.
 
 ## Project
 
-OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T). The skills are also served over MCP by the sibling repository `sdo-skills-mcp`. Full docs at `README.md` or `docs/`.
+OpenCode agent and profiles for writing standards contributions and deliverables (ETSI, 3GPP, ITU-T). The skill text lives in `sdo-skills` and is served over MCP by `sdo-skills-mcp`; this package installs the agent and the server entry. Full docs at `README.md` or `docs/`.
 
 ## Quick start
 
@@ -29,7 +29,7 @@ mise all        # test + lint + format in one pass
 
 ## Layout
 
-- **`src/sdo_writer/`** — primary package source (src layout)
+- **`src/sdo_writer/`** — primary package source (src layout); `mcp.py` owns the server entry
 - **`tests/`** — pytest suite (100% coverage gate)
 - **`src/sdo_writer/cli/`** — Typer CLI
 - **`docs/`** — Zensical / MkDocs Material documentation
@@ -43,4 +43,6 @@ mise all        # test + lint + format in one pass
 
 ## Available tools
 
-No MCP dev-features enabled. See `.copier-answers.yml` for template answers.
+No MCP servers are configured for this repository itself. See `.copier-answers.yml` for template
+answers. The installer writes the `sdo-skills` server entry into the OpenCode configuration it
+targets, not into this repository.

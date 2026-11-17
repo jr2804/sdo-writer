@@ -122,7 +122,9 @@ That prints the exact `command` array from your configuration. Run it: it starts
 and waits for a request, so interrupt it once you see that it did not fail. The usual causes are no
 network on the first run and a `--root` that points at a directory without skills.
 
-The command pins the interpreter (`--python 3.13`) on purpose. `fastmcp` pulls `pywin32` on Windows,
-which has no free-threading wheel, so a machine whose default interpreter is a free-threaded build
-fails to resolve the server with `pywin32 … has no wheels with a free-threading compatible ABI tag`.
-Change the pin only if you know the server installs into another interpreter.
+The command pins the interpreter (`--python 3.14`) on purpose: the regular, GIL-enabled CPython
+build. `fastmcp` pulls `pywin32` on Windows, which has no free-threading wheel, so a machine whose
+default interpreter is a free-threaded build fails to resolve the server with
+`pywin32 … has no wheels with a free-threading compatible ABI tag`. The pin makes `uvx` pick — or
+download — the regular 3.14 build instead. Change it only if you know the server installs into
+another interpreter.

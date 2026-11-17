@@ -123,7 +123,7 @@ alone:
     "servers": {
       "sdo-skills": {
         "type": "local",
-        "command": ["uvx", "--python", "3.13", "--from", "git+https://github.com/jr2804/sdo-skills-mcp", "sdo-skills-mcp", "serve", "--profile", "etsi"]
+        "command": ["uvx", "--python", "3.14", "--from", "git+https://github.com/jr2804/sdo-skills-mcp", "sdo-skills-mcp", "serve", "--profile", "etsi"]
       }
     }
   }

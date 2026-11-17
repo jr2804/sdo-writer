@@ -20,9 +20,11 @@ SCHEMA_URL = "https://opencode.ai/config.json"
 #: Interpreter the server is started with.
 #:
 #: The pin is deliberate. ``fastmcp`` pulls ``pywin32`` on Windows, which has
-#: no free-threading wheel; a machine whose default ``uvx`` interpreter is the
-#: free-threaded 3.14 build then fails to resolve the server at all.
-SERVER_PYTHON = "3.13"
+#: no free-threading wheel, so the server must run on the regular CPython
+#: build. ``--python 3.14`` selects the default (GIL-enabled) 3.14: when a
+#: machine only has an old-style free-threaded 3.14 registered, ``uvx``
+#: downloads the regular build instead of landing on the incompatible one.
+SERVER_PYTHON = "3.14"
 
 #: Name of the ``mcp.servers`` entry this package writes.
 MCP_SERVER_NAME = "sdo-skills"

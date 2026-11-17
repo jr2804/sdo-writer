@@ -1,4 +1,4 @@
-"""Version information for OpenCode SDO Writer."""
+"""Version information for SDO Writer."""
 
 from __future__ import annotations
 

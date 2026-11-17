@@ -1,4 +1,4 @@
-# Pre-commit hooks configuration for OpenCode SDO Writer
+# Pre-commit hooks configuration for SDO Writer
 #
 # Install pre-commit hooks:
 #   pre-commit install

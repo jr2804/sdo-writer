@@ -1,4 +1,4 @@
-"""Entry point for OpenCode SDO Writer CLI."""
+"""Entry point for SDO Writer CLI."""
 
 from __future__ import annotations
 

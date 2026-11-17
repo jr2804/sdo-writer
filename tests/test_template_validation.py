@@ -1,4 +1,4 @@
-"""Template validation tests for OpenCode SDO Writer."""
+"""Template validation tests for SDO Writer."""
 
 from __future__ import annotations
 

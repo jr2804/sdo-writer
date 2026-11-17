@@ -1,1 +1,1 @@
-"""Tests for OpenCode SDO Writer."""
+"""Tests for SDO Writer."""
